@@ -86,10 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: homeViewModel.getAllPosts,
-            icon: const Icon(Icons.refresh),
-          ),
-          IconButton(
             onPressed: () {
               Navigator.push(
                 context,
@@ -194,21 +190,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 }
                               },
 
-                        icon: homeViewModel.isLiking
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Icon(
-                                post.isLiked
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                size: 28,
-                                color: post.isLiked ? Colors.red : Colors.black,
-                              ),
+                        icon: Icon(
+                          post.isLiked ? Icons.favorite : Icons.favorite_border,
+                          size: 28,
+                          color: post.isLiked ? Colors.red : Colors.black,
+                        ),
                       ),
                     ),
                     Padding(

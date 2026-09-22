@@ -318,8 +318,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   return;
                                                 }
                                                 Navigator.pop(context);
-                                                await profileViewModel
-                                                    .getUserProfile();
+                                                profileViewModel
+                                                    .removePostLocally(post.id);
                                               } else {
                                                 Fluttertoast.showToast(
                                                   msg: profileViewModel

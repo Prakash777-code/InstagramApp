@@ -1,11 +1,11 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:instagram/exceptions/app_exception.dart';
 import 'package:instagram/models/profile.dart';
 import 'package:instagram/repository/posts_repository.dart';
 
 class ProfileViewModel extends ChangeNotifier {
-
   final postsRepository = PostsRepository();
   bool isLoading = false;
   bool buttonLoader = false;
@@ -60,5 +60,10 @@ class ProfileViewModel extends ChangeNotifier {
       buttonLoader = false;
       notifyListeners();
     }
+  }
+
+  void removePostLocally(int postId) {
+    profile?.posts.removeWhere((item) => item.id == postId);
+    notifyListeners();
   }
 }
