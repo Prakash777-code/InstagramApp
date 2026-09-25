@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:instagram/screens/login_screen.dart';
 import 'package:instagram/viewModels/auth_viewModel.dart';
+import 'package:instagram/utils/helper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -19,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final helper = Helper();
 
   bool obscurePassword = true;
 
@@ -134,14 +136,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Password is required';
+                          final res = helper.checkPassword(value!);
+                          if (res != "Strong password") {
+                            return res;
                           }
-
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-
                           return null;
                         },
                       ),
@@ -164,7 +162,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                                     if (authViewModel.errorMessage == null) {
                                       Fluttertoast.showToast(msg: "Registered");
-
                                       Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(

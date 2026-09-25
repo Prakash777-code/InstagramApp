@@ -163,51 +163,53 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 6, top: 5),
-                      child: IconButton(
-                        onPressed: homeViewModel.isLiking
-                            ? null
-                            : () async {
-                                if (post.isLiked) {
-                                  await homeViewModel.unlikePost(post.id);
-                                  if (homeViewModel.errorMessage == null) {
-                                    post.likes--;
-                                    post.isLiked = false;
-                                  } else {
-                                    Fluttertoast.showToast(
-                                      msg: homeViewModel.errorMessage!,
-                                    );
-                                  }
-                                } else {
-                                  await homeViewModel.likePost(post.id);
-                                  if (homeViewModel.errorMessage == null) {
-                                    post.likes++;
-                                    post.isLiked = true;
-                                  } else {
-                                    Fluttertoast.showToast(
-                                      msg: homeViewModel.errorMessage!,
-                                    );
-                                  }
-                                }
-                              },
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: homeViewModel.isLiking
+                                ? null
+                                : () async {
+                                    if (post.isLiked) {
+                                      await homeViewModel.unlikePost(post.id);
+                                      if (homeViewModel.errorMessage == null) {
+                                        post.likes--;
+                                        post.isLiked = false;
+                                      } else {
+                                        Fluttertoast.showToast(
+                                          msg: homeViewModel.errorMessage!,
+                                        );
+                                      }
+                                    } else {
+                                      await homeViewModel.likePost(post.id);
+                                      if (homeViewModel.errorMessage == null) {
+                                        post.likes++;
+                                        post.isLiked = true;
+                                      } else {
+                                        Fluttertoast.showToast(
+                                          msg: homeViewModel.errorMessage!,
+                                        );
+                                      }
+                                    }
+                                  },
+                            icon: Icon(
+                              post.isLiked
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              size: 28,
+                              color: post.isLiked ? Colors.red : Colors.black,
+                            ),
+                          ),
 
-                        icon: Icon(
-                          post.isLiked ? Icons.favorite : Icons.favorite_border,
-                          size: 28,
-                          color: post.isLiked ? Colors.red : Colors.black,
-                        ),
+                          Text(
+                            post.likes.toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        post.likes.toString(),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
                   ],
                 );
               },

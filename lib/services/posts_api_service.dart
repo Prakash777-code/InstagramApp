@@ -12,7 +12,6 @@ class PostsApiService {
   final baseUrl = "https://instagrambackend-aeed.onrender.com";
   final secureStorage = SecureStorage();
   final authApiService = AuthApiService();
-  int totalPosts = 0;
 
   Future<ApiResponse> getAllPosts(int page, int limit) async {
     var accessToken = await secureStorage.getAccessToken();

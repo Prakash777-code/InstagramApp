@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:instagram/exceptions/app_exception.dart';
 import 'package:instagram/repository/auth_repository.dart';
+import 'package:instagram/utils/helper.dart';
 
 class AuthViewModel extends ChangeNotifier {
   final authRepository = AuthRepository();
+  final helper = Helper();
   bool isLoading = false;
   String? errorMessage;
   bool isLoggedIn = false;
 
   Future<void> register(String name, String email, String password) async {
+    errorMessage = helper.checkPassword(password.replaceAll(' ', ''));
     isLoading = true;
     errorMessage = null;
     notifyListeners();
-
     try {
       await authRepository.register(name, email, password);
     } on AppException catch (e) {
@@ -30,7 +32,7 @@ class AuthViewModel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
     try {
-      await authRepository.login(email, password);
+      await authRepository.login(email, password.replaceAll(' ', ''));
       isLoggedIn = true;
     } on AppException catch (e) {
       errorMessage = e.toString();
