@@ -32,6 +32,7 @@ class AuthApiService {
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"email": email, "password": password}),
     );
+    print("LOGIN API RESPONSE :${response.body}");
     return ApiResponse(
       statusCode: response.statusCode,
       data: jsonDecode(response.body),
@@ -54,6 +55,27 @@ class AuthApiService {
     }
     throw UnauthorizedException(
       data["message"] ?? "Session expired. Please login again.",
+    );
+  }
+
+  Future<ApiResponse> updatePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final refreshToken = await secureStorage.getRefreshToken();
+    final response = await http.post(
+      Uri.parse("${baseUrl}/auth/updatePassword"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "currentPassword": currentPassword,
+        "newPassword": newPassword,
+        "refreshToken": refreshToken,
+      }),
+    );
+    print("UPDATE PASSWORD API RESPONSE :${response.body}");
+    return ApiResponse(
+      statusCode: response.statusCode,
+      data: jsonDecode(response.body),
     );
   }
 }

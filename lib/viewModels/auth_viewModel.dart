@@ -9,6 +9,7 @@ class AuthViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
   bool isLoggedIn = false;
+  bool changePasswordRequired = false;
 
   Future<void> register(String name, String email, String password) async {
     errorMessage = helper.checkPassword(password.replaceAll(' ', ''));
@@ -33,7 +34,14 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       await authRepository.login(email, password.replaceAll(' ', ''));
-      isLoggedIn = true;
+      if (authRepository.changePasswordRequired) {
+        changePasswordRequired = true;
+        isLoggedIn = false;
+      } else {
+        changePasswordRequired = false;
+        isLoggedIn = true;
+      }
+      print("PASSWORD CHNAGE REQUIRED : ${changePasswordRequired}");
     } on AppException catch (e) {
       errorMessage = e.toString();
     } catch (e) {
@@ -52,5 +60,24 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> checkAuthentication() async {
     isLoggedIn = await authRepository.isLoggedIn();
     notifyListeners();
+  }
+
+  Future<void> updatePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+    try {
+      await authRepository.updatePassword(currentPassword, newPassword);
+    } on AppException catch (e) {
+      errorMessage = e.toString();
+    } catch (e) {
+      errorMessage = e.toString();
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }

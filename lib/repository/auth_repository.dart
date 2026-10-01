@@ -9,6 +9,7 @@ class AuthRepository {
   final authApiservice = AuthApiService();
   final secureStorage = SecureStorage();
   final helper = Helper();
+  bool changePasswordRequired = false;
 
   Future<ApiResponse> register(
     String name,
@@ -27,13 +28,18 @@ class AuthRepository {
   Future<ApiResponse> login(String email, String password) async {
     try {
       final response = await authApiservice.login(email, password);
-      if (response.statusCode == 201) {
+      helper.handleRequest(response);
+      if (response.statusCode == 201 &&
+          response.data["passwordChangeRequired"] == true) {
+        changePasswordRequired = true;
+        await secureStorage.saveRefreshToken(response.data["refreshToken"]);
+      } else {
+        changePasswordRequired = false;
         await secureStorage.saveTokens(
           response.data["accessToken"],
           response.data["refreshToken"],
         );
       }
-      helper.handleRequest(response);
       return response;
     } on AppException {
       rethrow;
@@ -44,12 +50,28 @@ class AuthRepository {
     await secureStorage.clearTokens();
   }
 
-   Future<bool> isLoggedIn() async {
+  Future<bool> isLoggedIn() async {
     final accessToken = await secureStorage.getAccessToken();
     final refreshToken = await secureStorage.getRefreshToken();
-    if (accessToken == null && refreshToken == null) {
+    if (accessToken == null || refreshToken == null) {
       return false;
     }
     return true;
+  }
+
+  Future<ApiResponse> updatePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    try {
+      final response = await authApiservice.updatePassword(
+        currentPassword,
+        newPassword,
+      );
+      helper.handleRequest(response);
+      return response;
+    } on AppException {
+      rethrow;
+    }
   }
 }

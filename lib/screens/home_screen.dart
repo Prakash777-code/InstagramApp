@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:instagram/screens/login_screen.dart';
+import 'package:instagram/screens/notification_screen.dart';
 import 'package:instagram/screens/profile_screen.dart';
 import 'package:instagram/viewModels/auth_viewModel.dart';
 import 'package:instagram/viewModels/home_viewModel.dart';
@@ -85,34 +86,42 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
+          const SizedBox(width: 6),
           IconButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return const ProfileScreen();
+                    return const NotificationScreen();
                   },
                 ),
-              ).then((value) {
-                homeViewModel.getAllPosts();
-              });
+              );
             },
             icon: const Icon(
-              Icons.account_circle_outlined,
+              Icons.favorite_border,
               size: 30,
               color: Colors.black,
             ),
           ),
-          const SizedBox(width: 6),
         ],
       ),
       body: homeViewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               controller: scrollController,
-              itemCount: homeViewModel.posts.length,
+              itemCount: homeViewModel.posts.length + 1,
               itemBuilder: (context, index) {
+                if (index == homeViewModel.posts.length) {
+                  if (homeViewModel.isLoadingMore) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  return const SizedBox(height: 15);
+                }
                 final post = homeViewModel.posts[index];
 
                 return Column(
@@ -214,6 +223,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
+
+      bottomNavigationBar: SizedBox(
+        height: 50,
+        child: BottomAppBar(
+          color: Colors.white,
+          padding: EdgeInsets.zero,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 15),
+              child: CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 20,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(
+                    Icons.account_circle_outlined,
+                    size: 34,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const ProfileScreen();
+                        },
+                      ),
+                    ).then((value) {
+                      homeViewModel.getAllPosts();
+                    });
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:instagram/screens/home_screen.dart';
+import 'package:instagram/screens/notification_screen.dart';
+import 'package:instagram/screens/password_update_screen.dart';
 
 void main() {
   runApp(const MyApp());

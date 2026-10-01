@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:instagram/screens/home_screen.dart';
+import 'package:instagram/screens/password_update_screen.dart';
 import 'package:instagram/screens/register_screen.dart';
 import 'package:instagram/viewModels/auth_viewModel.dart';
 
@@ -45,7 +46,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     children: [
                       const SizedBox(height: 80),
-
                       const Text(
                         'Instagram',
                         style: TextStyle(
@@ -54,9 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontFamily: 'cursive',
                         ),
                       ),
-
                       const SizedBox(height: 40),
-
                       TextFormField(
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -76,13 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (!value.contains('@')) {
                             return 'Enter a valid email';
                           }
-
                           return null;
                         },
                       ),
-
                       const SizedBox(height: 10),
-
                       TextFormField(
                         controller: passwordController,
                         obscureText: obscurePassword,
@@ -110,13 +105,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Password is required';
                           }
-
                           return null;
                         },
                       ),
-
                       const SizedBox(height: 20),
-
                       SizedBox(
                         width: double.infinity,
                         height: 45,
@@ -129,7 +121,37 @@ class _LoginScreenState extends State<LoginScreen> {
                                       emailController.text.trim(),
                                       passwordController.text,
                                     );
-
+                                    if (authViewModel.changePasswordRequired) {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            AlertDialog(
+                                              title: const Text(
+                                                'Urgent action required!',
+                                              ),
+                                              content: const Text(
+                                                'For security reasons, you need to change your password before continuing.',
+                                              ),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text('OK'),
+                                                ),
+                                              ],
+                                            ),
+                                      );
+                                      if (!context.mounted) return;
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ChangePasswordScreen(),
+                                        ),
+                                      );
+                                      return;
+                                    }
                                     if (authViewModel.errorMessage == null) {
                                       Fluttertoast.showToast(msg: "Logged in");
                                       Navigator.pushReplacement(
