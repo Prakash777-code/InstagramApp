@@ -7,9 +7,22 @@ class NotificationRepository {
   final helper = Helper();
   final notificationApiService = NotificationApiService();
 
-  Future<ApiResponse> getUserNotifications() async {
+  Future<ApiResponse> getUserNotifications(int page, int limit) async {
     try {
-      final response = await notificationApiService.getUserNotifications();
+      final response = await notificationApiService.getUserNotifications(
+        page,
+        limit,
+      );
+      helper.handleRequest(response);
+      return response;
+    } on AppException {
+      rethrow;
+    }
+  }
+
+  Future<ApiResponse> hasUnreadNotification() async {
+    try {
+      final response = await notificationApiService.hasUnreadNotification();
       helper.handleRequest(response);
       return response;
     } on AppException {

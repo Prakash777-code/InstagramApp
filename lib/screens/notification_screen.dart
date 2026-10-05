@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:instagram/screens/home_screen.dart';
+import 'package:instagram/screens/profile_screen.dart';
 import 'package:instagram/utils/helper.dart';
+import 'package:instagram/viewModels/home_viewModel.dart';
 import 'package:instagram/viewModels/notification_view_model.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -14,11 +17,19 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreen extends State<NotificationScreen> {
   final notificationViewModel = NotificationViewModel();
   final helper = Helper();
+  final scrollController = ScrollController();
+  final homeViewModel = HomeViewModel();
 
   @override
   void initState() {
     super.initState();
     notificationViewModel.addListener(notificationListener);
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent * 0.9) {
+        notificationViewModel.loadMoreNotifications();
+      }
+    });
     getNotifications();
   }
 
@@ -35,6 +46,8 @@ class _NotificationScreen extends State<NotificationScreen> {
   @override
   void dispose() {
     notificationViewModel.dispose();
+    scrollController.dispose();
+    homeViewModel.dispose();
     super.dispose();
   }
 
@@ -44,6 +57,7 @@ class _NotificationScreen extends State<NotificationScreen> {
       backgroundColor: Colors.white,
 
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           "Notifications",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -55,8 +69,18 @@ class _NotificationScreen extends State<NotificationScreen> {
       body: notificationViewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: notificationViewModel.notificationList.length,
+              controller: scrollController,
+              itemCount: notificationViewModel.notificationList.length + 1,
               itemBuilder: (context, index) {
+                if (index == notificationViewModel.notificationList.length) {
+                  if (notificationViewModel.isLoadingMore) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  return const SizedBox(height: 15);
+                }
                 final notification =
                     notificationViewModel.notificationList[index];
                 return Padding(
@@ -130,6 +154,70 @@ class _NotificationScreen extends State<NotificationScreen> {
                 );
               },
             ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 50,
+          child: BottomAppBar(
+            color: Colors.white,
+            shape: const CircularNotchedRectangle(),
+            notchMargin: 5.0,
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              height: 50,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.home, color: Colors.black),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const HomeScreen();
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.search, color: Colors.black),
+                    onPressed: () {
+                      setState(() {});
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.send_outlined, color: Colors.black),
+                    onPressed: () {
+                      setState(() {});
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.account_circle_outlined,
+                      color: Colors.black,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const ProfileScreen();
+                          },
+                        ),
+                      ).then((value) {
+                        homeViewModel.getAllPosts();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

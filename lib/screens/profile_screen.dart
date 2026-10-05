@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:instagram/screens/home_screen.dart';
 import 'package:instagram/screens/login_screen.dart';
 import 'package:instagram/viewModels/auth_viewModel.dart';
+import 'package:instagram/viewModels/home_viewModel.dart';
 import 'package:instagram/viewModels/profile_view_model.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -22,6 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ImagePicker picker = ImagePicker();
   final ProfileViewModel profileViewModel = ProfileViewModel();
   final AuthViewModel authViewModel = AuthViewModel();
+  final homeViewModel = HomeViewModel();
 
   @override
   void initState() {
@@ -39,6 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     profileViewModel.removeListener(profileListener);
+    homeViewModel.dispose();
     super.dispose();
   }
 
@@ -75,6 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bool hasProfile = profileViewModel.profile != null;
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Profile'),
         actions: [
           IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
@@ -360,6 +365,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
+
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 50,
+          child: BottomAppBar(
+            color: Colors.white,
+            shape: const CircularNotchedRectangle(),
+            notchMargin: 5.0,
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              height: 50,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.home, color: Colors.black),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const HomeScreen();
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.search, color: Colors.black),
+                    onPressed: () {
+                      setState(() {});
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.send_outlined, color: Colors.black),
+                    onPressed: () {
+                      setState(() {});
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.account_circle_outlined,
+                      color: Colors.black,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const ProfileScreen();
+                          },
+                        ),
+                      ).then((value) {
+                        homeViewModel.getAllPosts();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

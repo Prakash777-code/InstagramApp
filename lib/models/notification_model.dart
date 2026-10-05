@@ -1,0 +1,20 @@
+import 'package:instagram/models/notification_list.dart';
+
+class NotificationModel {
+  final List<NotificationList> notificationList;
+  final int totalNotifications;
+
+  NotificationModel({
+    required this.notificationList,
+    required this.totalNotifications,
+  });
+
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    return NotificationModel(
+      notificationList: (json["data"] as List)
+          .map((item) => NotificationList.fromJson(item))
+          .toList(),
+      totalNotifications: json["totalNotifications"],
+    );
+  }
+}

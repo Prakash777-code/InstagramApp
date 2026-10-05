@@ -5,6 +5,7 @@ import 'package:instagram/screens/notification_screen.dart';
 import 'package:instagram/screens/profile_screen.dart';
 import 'package:instagram/viewModels/auth_viewModel.dart';
 import 'package:instagram/viewModels/home_viewModel.dart';
+import 'package:instagram/viewModels/notification_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final homeViewModel = HomeViewModel();
   final authViewModel = AuthViewModel();
   final scrollController = ScrollController();
+  final notificationViewModel = NotificationViewModel();
 
   @override
   void initState() {
@@ -33,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       checkUserAuthentication();
     });
+    notificationViewModel.hasUnreadNotification();
   }
 
   void homeListener() {
@@ -45,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     homeViewModel.dispose();
     scrollController.dispose();
+    notificationViewModel.dispose();
     super.dispose();
   }
 
@@ -87,22 +91,49 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           const SizedBox(width: 6),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return const NotificationScreen();
-                  },
-                ),
+
+          AnimatedBuilder(
+            animation: notificationViewModel,
+            builder: (context, child) {
+              return Stack(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const NotificationScreen();
+                          },
+                        ),
+                      ).then((_) {
+                        notificationViewModel.hasUnreadNotification();
+                      });
+                      ;
+                    },
+                    icon: const Icon(
+                      Icons.favorite_border,
+                      size: 30,
+                      color: Colors.black,
+                    ),
+                  ),
+
+                  if (notificationViewModel.showNotificationBadge)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        width: 9,
+                        height: 9,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
-            icon: const Icon(
-              Icons.favorite_border,
-              size: 30,
-              color: Colors.black,
-            ),
           ),
         ],
       ),
@@ -224,38 +255,65 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
 
-      bottomNavigationBar: SizedBox(
-        height: 50,
-        child: BottomAppBar(
-          color: Colors.white,
-          padding: EdgeInsets.zero,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 15),
-              child: CircleAvatar(
-                backgroundColor: Colors.white,
-                radius: 20,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    Icons.account_circle_outlined,
-                    size: 34,
-                    color: Colors.black,
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 50,
+          child: BottomAppBar(
+            color: Colors.white,
+            shape: const CircularNotchedRectangle(),
+            notchMargin: 5.0,
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              height: 50,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.home, color: Colors.black),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const HomeScreen();
+                          },
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return const ProfileScreen();
-                        },
-                      ),
-                    ).then((value) {
-                      homeViewModel.getAllPosts();
-                    });
-                  },
-                ),
+                  IconButton(
+                    icon: const Icon(Icons.search, color: Colors.black),
+                    onPressed: () {
+                      setState(() {});
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.send_outlined, color: Colors.black),
+                    onPressed: () {
+                      setState(() {});
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.account_circle_outlined,
+                      color: Colors.black,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const ProfileScreen();
+                          },
+                        ),
+                      ).then((value) {
+                        homeViewModel.getAllPosts();
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
           ),
